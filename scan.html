@@ -1,1 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scan QR</title></head>
+<body>
+<h2>Scan your Ticket</h2>
+<video id="cam" width="300" height="300" style="border:1px solid"></video>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.15/umd/index.min.js"></script>
+<script>
+const codeReader = new ZXingBrowser.BrowserQRCodeReader();
+const cam = document.getElementById('cam');
 
+async function start() {
+  const firstCamId = (await ZXingBrowser.BrowserCodeReader.listVideoInputDevices())[0]?.deviceId;
+  codeReader.decodeFromVideoDevice(firstCamId, cam, async (res, err, ctrl) => {
+    if (res) {
+      ctrl.stop();
+      const {unique_id} = JSON.parse(res.getText());
+      const check = await fetch(`/.netlify/functions/get-passenger?id=${unique_id}`).then(r=>r.json());
+      alert(check && check.name ? `✅ Passenger Verified: ${check.name}` : '❌ Invalid QR');
+      location.reload();
+    }
+  });
+}
+start();
+</script>
+</body>
+</html>
