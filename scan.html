@@ -2,57 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QR Code Scanner</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: #f0f0f0;
-    }
-    h1 {
-      color: #333;
-    }
-    #qr-reader {
-      width: 300px;
-      margin: 0 auto;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      color: green;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scan QR</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="container">
+    <div class="card">
+      <h2>Scan your Ticket</h2>
+      <video id="cam"></video>
+    </div>
+  </div>
 
-  <h1>QR Code Scanner</h1>
-  <div id="qr-reader"></div>
-  <div id="result">Scanned Result Will Appear Here</div>
-
-  <!-- Include html5-qrcode library -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- ZXing scanner + your original JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.15/umd/index.min.js"></script>
   <script>
-    function onScanSuccess(decodedText, decodedResult) {
-      // Handle the scanned result here
-      document.getElementById("result").innerText = `Scanned QR Code: ${decodedText}`;
+    const codeReader = new ZXingBrowser.BrowserQRCodeReader();
+    const cam       = document.getElementById('cam');
+
+    async function start() {
+      const [firstCam] = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+      codeReader.decodeFromVideoDevice(firstCam.deviceId, cam, async (res, err, ctrl) => {
+        if (res) {
+          ctrl.stop();
+          const {unique_id} = JSON.parse(res.getText());
+          const passenger   = await fetch(`/.netlify/functions/get-passenger?id=${unique_id}`)
+                                  .then(r=>r.json());
+
+          alert(passenger && passenger.name
+                ? `✅ Passenger Verified: ${passenger.name}`
+                : '❌ Invalid QR');
+          location.reload();
+        }
+      });
     }
-
-    function onScanFailure(error) {
-      // Optionally log scan errors
-      console.warn(`QR scan error: ${error}`);
-    }
-
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-      "qr-reader",
-      { fps: 10, qrbox: 250 },
-      false
-    );
-
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    start();
   </script>
-
 </body>
 </html>
