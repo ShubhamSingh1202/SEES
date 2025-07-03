@@ -1,1 +1,39 @@
 
+<!DOCTYPE html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Generate QR</title></head>
+<body>
+<h2>Passenger Details</h2>
+<form id="f">
+  <input placeholder="Name" name="name" required><br>
+  <input placeholder="Age"  name="age" type="number" required><br>
+  <input placeholder="Gender" name="gender" required><br>
+  <input placeholder="From station" name="from_station" required><br>
+  <input placeholder="To station" name="to_station" required><br>
+  <input placeholder="Coach" name="coach" required><br>
+  <input placeholder="Seat" name="seat" required><br>
+  <button type="submit">Generate & Save</button>
+</form>
+<canvas id="qrc"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.2/build/qrcode.min.js"></script>
+<script>
+document.getElementById('f').onsubmit = async e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  data.unique_id = crypto.randomUUID();
+
+  /* 1️⃣ save in DB through Netlify Function */
+  await fetch('/.netlify/functions/store-data', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(data)
+  });
+
+  /* 2️⃣ create QR that only contains the unique_id */
+  QRCode.toCanvas(document.getElementById('qrc'), JSON.stringify({unique_id:data.unique_id}));
+  alert('QR generated & passenger stored!');
+};
+</script>
+</body>
+</html>
