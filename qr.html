@@ -1,420 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate My QR</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generate QR</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .qr-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            transform: translateY(0);
-            transition: all 0.3s ease;
-        }
-
-        .qr-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 0.95em;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        input[type="text"]:focus, input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .generate-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .generate-btn:active {
-            transform: translateY(0);
-        }
-
-        .generate-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .generate-btn:hover::before {
-            left: 100%;
-        }
-
-        .qr-section {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        #qrcode {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            margin-top: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s ease;
-        }
-
-        #qrcode.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .qr-info {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 2px dashed #667eea;
-            display: none;
-        }
-
-        .qr-info.show {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .info-value {
-            color: #667eea;
-            font-weight: 500;
-        }
-
-        .success-message {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @media (max-width: 600px) {
-            .qr-container {
-                padding: 25px;
-                margin: 10px;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-   
-    <div class="qr-container">
-        <div class="header">
-            <h1>📱 Generate My QR</h1>
-            <p>Create your unique QR code instantly</p>
-        </div>
+  <div class="container">
+    <div class="card">
+      <h2>Generate Passenger QR</h2>
 
-        <form id="qrForm">
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" placeholder="Enter your full name" required>
-            </div>
+      <form id="f">
+        <input placeholder="Name"          name="name"         required>
+        <input placeholder="Age"           name="age"  type="number" required>
+        <input placeholder="Gender"        name="gender"       required>
+        <input placeholder="From station"  name="from_station" required>
+        <input placeholder="To station"    name="to_station"   required>
+        <input placeholder="Coach"         name="coach"        required>
+        <input placeholder="Seat"          name="seat"         required>
+        <button type="submit">Generate &amp; Save</button>
+      </form>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" placeholder="Enter age" min="1" max="120" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="gender">Gender</label>
-                    <input type="text" id="gender" placeholder="Enter gender" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fromStation">From Station</label>
-                    <input type="text" id="fromStation" placeholder="Enter departure station" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="toStation">To Station</label>
-                    <input type="text" id="toStation" placeholder="Enter destination station" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="coach">Coach Number</label>
-                    <input type="text" id="coach" placeholder="e.g., A1" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="seat">Seat Number</label>
-                    <input type="text" id="seat" placeholder="e.g., 23" required>
-                </div>
-            </div>
-
-            <button type="button" class="generate-btn" onclick="generateQR()">
-                Generate QR Code
-            </button>
-        </form>
-
-        <div class="qr-section">
-            <div id="qrcode"></div>
-            
-            <div id="qrInfo" class="qr-info">
-                <h3 style="text-align: center; margin-bottom: 20px; color: #667eea;">📋 QR Code Information</h3>
-                <div class="info-item">
-                    <span class="info-label">Name:</span>
-                    <span class="info-value" id="infoName">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Age:</span>
-                    <span class="info-value" id="infoAge">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Gender:</span>
-                    <span class="info-value" id="infoGender">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">From Station:</span>
-                    <span class="info-value" id="infoFromStation">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">To Station:</span>
-                    <span class="info-value" id="infoToStation">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Coach:</span>
-                    <span class="info-value" id="infoCoach">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Seat:</span>
-                    <span class="info-value" id="infoSeat">-</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="successMessage" class="success-message">
-            ✅ QR Code generated successfully! You can now scan it with any QR reader.
-        </div>
+      <canvas id="qrc" width="256" height="256"></canvas>
     </div>
+  </div>
 
-    <!-- QR Code JS Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QR-Code library + your original JS -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.2/build/qrcode.min.js"></script>
+  <script>
+    document.getElementById('f').onsubmit = async e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      data.unique_id = crypto.randomUUID();
 
-    <script>
-        function generateQR() {
-            const name = document.getElementById('name').value.trim();
-            const age = document.getElementById('age').value.trim();
-            const gender = document.getElementById('gender').value.trim();
-            const fromStation = document.getElementById('fromStation').value.trim();
-            const toStation = document.getElementById('toStation').value.trim();
-            const coach = document.getElementById('coach').value.trim();
-            const seat = document.getElementById('seat').value.trim();
+      await fetch('/.netlify/functions/store-data', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
 
-            // Validate inputs
-            if (!name || !age || !gender || !fromStation || !toStation || !coach || !seat) {
-                alert('⚠️ Please fill in all fields before generating QR code!');
-                return;
-            }
+      QRCode.toCanvas(
+        document.getElementById('qrc'),
+        JSON.stringify({unique_id:data.unique_id})
+      );
 
-            // Check if same station entered
-            if (fromStation.toLowerCase() === toStation.toLowerCase()) {
-                alert('⚠️ From and To stations cannot be the same!');
-                return;
-            }
-
-            const data = `Name: ${name}, Age: ${age}, Gender: ${gender}, From: ${fromStation}, To: ${toStation}, Coach: ${coach}, Seat: ${seat}`;
-
-            // Clear existing QR
-            document.getElementById("qrcode").innerHTML = "";
-
-            // Generate new QR code
-            new QRCode(document.getElementById("qrcode"), {
-                text: data,
-                width: 200,
-                height: 200,
-                colorDark: "#667eea",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // Show QR code with animation
-            setTimeout(() => {
-                document.getElementById("qrcode").classList.add("show");
-            }, 100);
-
-            // Update info display
-            document.getElementById('infoName').textContent = name;
-            document.getElementById('infoAge').textContent = age;
-            document.getElementById('infoGender').textContent = gender;
-            document.getElementById('infoFromStation').textContent = fromStation;
-            document.getElementById('infoToStation').textContent = toStation;
-            document.getElementById('infoCoach').textContent = coach;
-            document.getElementById('infoSeat').textContent = seat;
-
-            // Show info section
-            document.getElementById('qrInfo').classList.add('show');
-
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
-            successMessage.classList.add('show');
-            
-            // Hide success message after 3 seconds
-            setTimeout(() => {
-                successMessage.classList.remove('show');
-            }, 3000);
-
-            // Scroll to QR code
-            document.getElementById('qrcode').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Add Enter key support for form submission
-        document.getElementById('qrForm').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                generateQR();
-            }
-        });
-    </script>
+      alert('QR generated & passenger stored!');
+    };
+  </script>
 </body>
 </html>
